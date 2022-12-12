@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { DatabaseService } from '../database/database.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
 
 @Injectable()
 export class SectionsService {
-  create(createSectionDto: CreateSectionDto) {
-    return 'This action adds a new section';
+  constructor(private readonly dbService: DatabaseService) {}
+
+  create({ title }: CreateSectionDto) {
+    return this.dbService.questionSection.create({
+      data: {
+        title,
+      },
+    });
   }
 
   findAll() {
-    return `This action returns all sections`;
+    return this.dbService.questionSection.findMany();
   }
 
   findOne(id: number) {

@@ -7,26 +7,71 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 export class QuestionsService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  create({ answers, correctAnswerIndex, title }: CreateQuestionDto) {
+  create({
+    answers,
+    correctAnswerIndex,
+    title,
+    sectionIds,
+  }: CreateQuestionDto) {
     return this.dbService.question.create({
       data: {
         title,
         correctAnswerIndex,
         answers,
+
+        sections: {
+          connect: [...sectionIds.map((id) => ({ id }))],
+        },
       },
     });
   }
 
   findAll() {
-    return `This action returns all questions`;
+    return this.dbService.question.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} question`;
+  findOne(id: string) {
+    return this.dbService.question.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
-  update(id: number, updateQuestionDto: UpdateQuestionDto) {
-    return `This action updates a #${id} question`;
+  update(
+    id: string,
+    { answers, correctAnswerIndex, sectionIds, title }: UpdateQuestionDto,
+  ) {
+    return this.dbService.question.update({
+      where: {
+        id,
+      },
+      data: {
+        answers,
+        correctAnswerIndex,
+        title,
+        sections: sectionIds
+          ? {
+              connect: [...sectionIds?.map((id) => ({ id }))],
+            }
+          : undefined,
+      },
+    });
+  }
+
+  // addSection(questionId: string, sectionId: string) {
+  //    return this.dbService.question.update({
+  //     where: {
+  //       id:questionId
+  //     },
+  //     data: {
+  //       sectionIds
+  //     }
+  //   })
+  // }
+
+  removeSection(questionId: string, sectionId: string) {
+    
   }
 
   remove(id: number) {
