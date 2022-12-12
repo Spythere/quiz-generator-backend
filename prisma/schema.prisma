@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name     String? @unique
+  email    String  @unique
+  password String
+
+  // Many questions assigned to user
+  Question Question[]
+}
+
+model Question {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title              String
+  answers            String[]
+  correctAnswerIndex Int
+
+  // One author - one question
+  author   User?   @relation(fields: [authorId], references: [id])
+  authorId String? @db.ObjectId
+
+  // Question in many sections
+  sections   QuestionSection[] @relation(fields: [sectionIds], references: [id])
+  sectionIds String[]          @db.ObjectId
+}
+
+model QuestionSection {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+
+  // Many questions in section
+  questions   Question[] @relation(fields: [questionIds], references: [id])
+  questionIds String[]   @db.ObjectId
+
+  // Many sections in quizes
+  quizes  Quiz[]   @relation(fields: [quizIds], references: [id])
+  quizIds String[] @db.ObjectId
+}
+
+model Quiz {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+
+  // Quiz in many sections
+  sections   QuestionSection[] @relation(fields: [sectionIds], references: [id])
+  sectionIds String[]          @db.ObjectId
+}
