@@ -15,9 +15,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name     String? @unique
-  email    String  @unique
-  password String
+  name      String? @unique
+  email     String  @unique
+  hashedPwd String
+  hashedRT  String?
 
   // Many questions assigned to user
   Question Question[]
