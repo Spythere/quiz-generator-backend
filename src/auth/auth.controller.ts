@@ -1,32 +1,37 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   HttpCode,
   HttpException,
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
-import { JwtTokens } from './types/token.type';
+import { JwtResponse } from './types/token.type';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
-  signUp(@Body() authDto: AuthDto): Promise<JwtTokens> {
+  signUp(@Body() authDto: AuthDto): Promise<JwtResponse> {
     return this.authService.signUp(authDto);
   }
 
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
-  signIn(@Body() authDto: AuthDto): Promise<JwtTokens | HttpException> {
-    return this.authService.signIn(authDto);
+  signIn(
+    @Res({ passthrough: true }) res: Response,
+    @Body() authDto: AuthDto,
+  ): Promise<JwtResponse> {
+    return this.authService.signIn(res, authDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -38,10 +43,15 @@ export class AuthController {
     return this.authService.logout(user['sub']);
   }
 
-  @UseGuards(AuthGuard('jwt-refresh'))
   @Post('/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens() {
-    return this.authService.refreshTokens();
+  refreshTokens(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+  ) {
+    // const user = req.user;
+    const refreshToken = req.cookies['refreshToken'];
+
+    return this.authService.refreshTokens(res, refreshToken);
   }
 }

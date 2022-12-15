@@ -5,7 +5,8 @@ import { AuthDto } from './dto/auth.dto';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtTokens } from './types/token.type';
+import { JwtResponse } from './types/token.type';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signUp({ email, password }: AuthDto): Promise<JwtTokens> {
+  async signUp({ email, password }: AuthDto): Promise<JwtResponse> {
     const hashedPwd = await this.hashData(password);
 
     const newUser = await this.dbService.user.create({
@@ -28,10 +29,12 @@ export class AuthService {
     const tokens = await this.getJwtTokens(newUser.id, newUser.email);
     await this.updateRefreshTokenHash(newUser.id, tokens.refresh_token);
 
-    return tokens;
+    return {
+      ...tokens,
+    };
   }
 
-  async signIn(authDto: AuthDto): Promise<JwtTokens | HttpException> {
+  async signIn(res: Response, authDto: AuthDto): Promise<JwtResponse> {
     const user = await this.dbService.user.findUnique({
       where: {
         email: authDto.email,
@@ -39,7 +42,7 @@ export class AuthService {
     });
 
     if (!user)
-      return new ForbiddenException('No user exists with the provided email!');
+      throw new ForbiddenException('No user exists with the provided email!');
 
     const doesPasswordMatch = await argon2.verify(
       user.hashedPwd,
@@ -47,12 +50,18 @@ export class AuthService {
     );
 
     if (!doesPasswordMatch)
-      return new ForbiddenException('Password is not correct!');
+      throw new ForbiddenException('Password is not correct!');
 
     const tokens = await this.getJwtTokens(user.id, user.email);
+    res.cookie('refreshToken', tokens.refresh_token, {
+      httpOnly: true,
+    });
+
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    return {
+      ...tokens,
+    };
   }
 
   async logout(id: string) {
@@ -69,7 +78,42 @@ export class AuthService {
     });
   }
 
-  refreshTokens() {}
+  async refreshTokens(
+    res: Response,
+    refreshToken: string | undefined,
+  ): Promise<JwtResponse> {
+    if (!refreshToken)
+      throw new ForbiddenException('Brak tokenu uwierzytelniającego!');
+
+    const rtData = this.jwtService.decode(refreshToken) as JwtResponse['data'];
+
+    if (!('sub' in rtData)) throw new ForbiddenException('Niepoprawny token!');
+
+    console.log(rtData);
+
+    const user = await this.dbService.user.findUnique({
+      where: {
+        id: rtData.sub,
+      },
+    });
+
+    if (!user || !user.hashedRT) throw new ForbiddenException('Brak dostępu!');
+
+    const doTokensMatch = await argon2.verify(user.hashedRT, refreshToken);
+
+    if (!doTokensMatch) throw new ForbiddenException('Przestarzały token!');
+
+    const tokens = await this.getJwtTokens(user.id, user.email);
+    res.cookie('refreshToken', tokens.refresh_token, {
+      httpOnly: true,
+    });
+    
+    await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
+
+    return {
+      ...tokens,
+    };
+  }
 
   // Auth service utils
 
@@ -113,7 +157,8 @@ export class AuthService {
     return {
       access_token,
       refresh_token,
-    };
+      data: this.jwtService.decode(access_token),
+    } as JwtResponse;
   }
 
   private hashData(data: string) {
