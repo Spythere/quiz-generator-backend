@@ -6,14 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { GetQuestionDto } from './dto/get-question.dto';
 import { isMongoId } from 'class-validator';
 
 @Controller('questions')
