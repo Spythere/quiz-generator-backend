@@ -1,17 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -25,7 +22,7 @@ model User {
 }
 
 model Question {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -34,36 +31,36 @@ model Question {
   correctAnswerIndex Int
 
   // One author - one question
-  author   User?   @relation(fields: [authorId], references: [id])
-  authorId String? @db.ObjectId
+  author   User? @relation(fields: [authorId], references: [id])
+  authorId Int?
 
   // Question in many sections
-  sections   QuestionSection[] @relation(fields: [sectionIds], references: [id])
-  sectionIds String[]          @db.ObjectId
+  sections QuestionSection[]
+
+  Quiz   Quiz? @relation(fields: [quizId], references: [id], onDelete: SetNull)
+  quizId Int?
 }
 
 model QuestionSection {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title     String
 
   // Many questions in section
-  questions   Question[] @relation(fields: [questionIds], references: [id])
-  questionIds String[]   @db.ObjectId
+  questions Question[]
 
   // Many sections in quizes
-  quizes  Quiz[]   @relation(fields: [quizIds], references: [id])
-  quizIds String[] @db.ObjectId
+  quizes Quiz[]
 }
 
 model Quiz {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title     String
 
   // Quiz in many sections
-  sections   QuestionSection[] @relation(fields: [sectionIds], references: [id])
-  sectionIds String[]          @db.ObjectId
+  questions Question[]
+  sections  QuestionSection[]
 }

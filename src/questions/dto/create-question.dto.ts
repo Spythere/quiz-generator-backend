@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ArrayMaxSize,
-    IsArray,
-  IsInt,
-  IsMongoId,
-  IsString,
-} from 'class-validator';
+import { ArrayMaxSize, IsArray, IsInt, IsString } from 'class-validator';
 
 export class CreateQuestionDto {
   @ApiProperty()
@@ -24,6 +18,5 @@ export class CreateQuestionDto {
 
   @ApiProperty()
   @IsArray()
-  @IsMongoId({ each: true })
-  sectionIds: string[];
+  sectionIds: number[];
 }

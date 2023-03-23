@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { AuthDto } from './dto/auth.dto';
 
@@ -64,7 +64,7 @@ export class AuthService {
     };
   }
 
-  async logout(id: string) {
+  async logout(id: number) {
     await this.dbService.user.updateMany({
       where: {
         id,
@@ -107,7 +107,7 @@ export class AuthService {
     res.cookie('refreshToken', tokens.refresh_token, {
       httpOnly: true,
     });
-    
+
     await this.updateRefreshTokenHash(user.id, tokens.refresh_token);
 
     return {
@@ -117,7 +117,7 @@ export class AuthService {
 
   // Auth service utils
 
-  private async updateRefreshTokenHash(id: string, refreshToken: string) {
+  private async updateRefreshTokenHash(id: number, refreshToken: string) {
     const hash = await this.hashData(refreshToken);
 
     await this.dbService.user.update({
@@ -130,7 +130,7 @@ export class AuthService {
     });
   }
 
-  private async getJwtTokens(id: string, email: string) {
+  private async getJwtTokens(id: number, email: string) {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(
         {

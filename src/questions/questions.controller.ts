@@ -30,7 +30,7 @@ export class QuestionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     if (!isMongoId(`${id}`)) throw new BadRequestException('Invalid ID');
 
     return this.questionsService.findOne(id);
@@ -38,7 +38,7 @@ export class QuestionsController {
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
     return this.questionsService.update(id, updateQuestionDto);

@@ -3,7 +3,7 @@ export type JwtResponse = {
   refresh_token: string;
 
   data: {
-    sub: string;
+    sub: number;
     email: string;
     iat: number;
     exp: number;

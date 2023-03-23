@@ -30,7 +30,7 @@ export class QuestionsService {
     return this.dbService.question.findMany();
   }
 
-  findOne(id: string) {
+  findOne(id: number) {
     return this.dbService.question.findUnique({
       where: {
         id,
@@ -39,7 +39,7 @@ export class QuestionsService {
   }
 
   update(
-    id: string,
+    id: number,
     { answers, correctAnswerIndex, sectionIds, title }: UpdateQuestionDto,
   ) {
     return this.dbService.question.update({
@@ -69,10 +69,6 @@ export class QuestionsService {
   //     }
   //   })
   // }
-
-  removeSection(questionId: string, sectionId: string) {
-    
-  }
 
   remove(id: number) {
     return `This action removes a #${id} question`;

@@ -5,6 +5,6 @@ import { DatabaseService } from '../database/database.service';
 
 @Module({
   controllers: [SectionsController],
-  providers: [SectionsService, DatabaseService]
+  providers: [SectionsService, DatabaseService],
 })
 export class SectionsModule {}

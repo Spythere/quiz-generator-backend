@@ -1,26 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { CreateQuizeDto } from './dto/create-quize.dto';
-import { UpdateQuizeDto } from './dto/update-quize.dto';
+import { CreateQuizDto } from './dto/create-quiz.dto';
+import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class QuizesService {
-  create(createQuizeDto: CreateQuizeDto) {
-    return 'This action adds a new quize';
+  constructor(private readonly dbService: DatabaseService) {}
+
+  create(createQuizDto: CreateQuizDto) {
+    return this.dbService.quiz.create({
+      data: {
+        title: createQuizDto.title,
+        // TODO: link questions
+        // TODO: link sections
+      },
+    });
   }
 
   findAll() {
-    return `This action returns all quizes`;
+    return this.dbService.quiz.findMany({});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} quize`;
+  findOne(id: string) {
+    return this.dbService.quiz.findUnique({ where: { id: Number(id) } });
   }
 
-  update(id: number, updateQuizeDto: UpdateQuizeDto) {
-    return `This action updates a #${id} quize`;
+  update(id: string, updateQuizDto: UpdateQuizDto) {
+    return this.dbService.quiz.update({
+      where: { id: Number(id) },
+      data: updateQuizDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} quize`;
+  remove(id: string) {
+    return this.dbService.quiz.delete({ where: { id: Number(id) } });
+  }
+  removeMany(ids: number[]) {
+    return this.dbService.quiz.deleteMany({ where: { id: { in: ids } } });
   }
 }

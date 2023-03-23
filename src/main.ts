@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ForbiddenException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
@@ -16,7 +16,7 @@ async function bootstrap() {
     origin: (origin, callback) => {
       if (whitelist.includes(origin)) return callback(null, true);
 
-      callback(new Error('Not allowed by CORS'));
+      callback(new ForbiddenException('Not allowed by CORS'));
     },
   });
 
