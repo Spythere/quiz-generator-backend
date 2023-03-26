@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { DatabaseService } from '../database/database.service';
+import { RemoveQuizesDto } from './dto/remove-quizes.dto';
 
 @Injectable()
 export class QuizesService {
@@ -21,21 +22,26 @@ export class QuizesService {
     return this.dbService.quiz.findMany({});
   }
 
-  findOne(id: string) {
-    return this.dbService.quiz.findUnique({ where: { id: Number(id) } });
+  findOne(id: number) {
+    const quizDoc = this.dbService.quiz.findFirst({
+      where: { id: id },
+    });
+
+    return quizDoc;
   }
 
-  update(id: string, updateQuizDto: UpdateQuizDto) {
+  update(id: number, updateQuizDto: UpdateQuizDto) {
     return this.dbService.quiz.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: updateQuizDto,
     });
   }
 
-  remove(id: string) {
-    return this.dbService.quiz.delete({ where: { id: Number(id) } });
+  remove(id: number) {
+    return this.dbService.quiz.delete({ where: { id: id } });
   }
-  removeMany(ids: number[]) {
-    return this.dbService.quiz.deleteMany({ where: { id: { in: ids } } });
+
+  removeMany(dto: RemoveQuizesDto) {
+    return this.dbService.quiz.deleteMany({ where: { id: { in: dto.ids } } });
   }
 }

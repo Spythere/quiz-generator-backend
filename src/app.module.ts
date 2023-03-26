@@ -7,6 +7,8 @@ import { SectionsModule } from './sections/sections.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, Reflector } from '@nestjs/core';
+import { UserGuard } from './models/guards/user.guard';
 
 @Module({
   imports: [
@@ -20,6 +22,13 @@ import { ConfigModule } from '@nestjs/config';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // {
+    //   provide: APP_GUARD,
+    //   useFactory: (ref) => new UserGuard(ref),
+    //   // inject: [Reflector],
+    // },
+  ],
 })
 export class AppModule {}

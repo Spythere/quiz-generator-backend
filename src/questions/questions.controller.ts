@@ -7,12 +7,14 @@ import {
   Param,
   Delete,
   BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { isMongoId } from 'class-validator';
+import { RemoveQuestionsDto } from './dto/remove-questions.dto';
 
 @Controller('questions')
 @ApiTags('questions')
@@ -30,7 +32,7 @@ export class QuestionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     if (!isMongoId(`${id}`)) throw new BadRequestException('Invalid ID');
 
     return this.questionsService.findOne(id);
@@ -38,19 +40,24 @@ export class QuestionsController {
 
   @Patch(':id')
   update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
     return this.questionsService.update(id, updateQuestionDto);
   }
 
   // @Patch(':id/addSection/:sectionId')
-  // addSection(@Param('id') id: string, @Param('sectionId') sectionId: string) {
+  // addSection(@Param('id', ParseIntPipe) id: string, @Param('sectionId') sectionId: string) {
   //   return this.questionsService.addSection(id, sectionId);
   // }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.questionsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.questionsService.remove(id);
+  }
+
+  @Post('/removeMany')
+  removeMany(@Body() dto: RemoveQuestionsDto) {
+    return this.questionsService.removeMany(dto);
   }
 }

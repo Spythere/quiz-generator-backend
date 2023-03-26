@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuizesService } from './quizes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
@@ -33,22 +34,25 @@ export class QuizesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.quizesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateQuizDto: UpdateQuizDto,
+  ) {
     return this.quizesService.update(id, updateQuizDto);
   }
 
-  @Delete('/id/:id')
-  remove(@Param('id') id: string) {
+  @Delete('/:id')
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.quizesService.remove(id);
   }
 
-  @Delete('/many')
-  removeMany(@Query('ids') dto: RemoveQuizesDto) {
-    return this.quizesService.removeMany(dto.ids);
+  @Post('/removeMany')
+  removeMany(@Body() dto: RemoveQuizesDto) {
+    return this.quizesService.removeMany(dto);
   }
 }

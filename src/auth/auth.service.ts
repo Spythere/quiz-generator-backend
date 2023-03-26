@@ -89,7 +89,7 @@ export class AuthService {
 
     if (!('sub' in rtData)) throw new ForbiddenException('Niepoprawny token!');
 
-    console.log(rtData);
+    // console.log(rtData);
 
     const user = await this.dbService.user.findUnique({
       where: {

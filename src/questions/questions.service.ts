@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
+import { RemoveQuestionsDto } from './dto/remove-questions.dto';
 
 @Injectable()
 export class QuestionsService {
@@ -19,9 +20,9 @@ export class QuestionsService {
         correctAnswerIndex,
         answers,
 
-        sections: {
-          connect: [...sectionIds.map((id) => ({ id }))],
-        },
+        // sections: {
+        //   connect: [...sectionIds?.map((id) => ({ id }))],
+        // },
       },
     });
   }
@@ -33,7 +34,7 @@ export class QuestionsService {
   findOne(id: number) {
     return this.dbService.question.findUnique({
       where: {
-        id,
+        id: Number(id),
       },
     });
   }
@@ -44,7 +45,7 @@ export class QuestionsService {
   ) {
     return this.dbService.question.update({
       where: {
-        id,
+        id: Number(id),
       },
       data: {
         answers,
@@ -59,7 +60,7 @@ export class QuestionsService {
     });
   }
 
-  // addSection(questionId: string, sectionId: string) {
+  // addSection(questionId: number, sectionId: number) {
   //    return this.dbService.question.update({
   //     where: {
   //       id:questionId
@@ -72,5 +73,11 @@ export class QuestionsService {
 
   remove(id: number) {
     return `This action removes a #${id} question`;
+  }
+
+  removeMany(dto: RemoveQuestionsDto) {
+    return this.dbService.question.deleteMany({
+      where: { id: { in: dto.ids } },
+    });
   }
 }

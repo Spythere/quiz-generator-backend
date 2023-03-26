@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayMaxSize, IsArray, IsInt, IsString } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateQuestionDto {
   @ApiProperty()
@@ -18,5 +24,6 @@ export class CreateQuestionDto {
 
   @ApiProperty()
   @IsArray()
-  sectionIds: number[];
+  @IsOptional()
+  sectionIds?: number[];
 }
