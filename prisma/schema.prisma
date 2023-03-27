@@ -37,8 +37,7 @@ model Question {
   // Question in many sections
   sections QuestionSection[]
 
-  Quiz   Quiz? @relation(fields: [quizId], references: [id], onDelete: SetNull)
-  quizId Int?
+  quizes Quiz[]
 }
 
 model QuestionSection {

@@ -16,6 +16,7 @@ import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RemoveQuizesDto } from './dto/remove-quizes.dto';
+import { AddQuestionDto } from './dto/add-question-dto';
 
 @Controller('quizes')
 @ApiTags('quizes')
@@ -33,12 +34,12 @@ export class QuizesController {
     return this.quizesService.findAll();
   }
 
-  @Get(':id')
+  @Get('/id/:id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.quizesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('/id/:id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateQuizDto: UpdateQuizDto,
@@ -46,7 +47,17 @@ export class QuizesController {
     return this.quizesService.update(id, updateQuizDto);
   }
 
-  @Delete('/:id')
+  @Post('/addQuestion')
+  addQuestion(@Body() dto: AddQuestionDto) {
+    return this.quizesService.addQuestion(dto);
+  }
+
+  @Post('/removeQuestion')
+  removeQuestion(@Body() dto: AddQuestionDto) {
+    return this.quizesService.removeQuestion(dto);
+  }
+
+  @Delete('/id/:id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.quizesService.remove(id);
   }

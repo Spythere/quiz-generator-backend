@@ -3,6 +3,7 @@ import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { DatabaseService } from '../database/database.service';
 import { RemoveQuizesDto } from './dto/remove-quizes.dto';
+import { AddQuestionDto } from './dto/add-question-dto';
 
 @Injectable()
 export class QuizesService {
@@ -25,6 +26,14 @@ export class QuizesService {
   findOne(id: number) {
     const quizDoc = this.dbService.quiz.findFirst({
       where: { id: id },
+      include: {
+        questions: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
     });
 
     return quizDoc;
@@ -34,6 +43,36 @@ export class QuizesService {
     return this.dbService.quiz.update({
       where: { id: id },
       data: updateQuizDto,
+    });
+  }
+
+  addQuestion(dto: AddQuestionDto) {
+    return this.dbService.quiz.update({
+      where: {
+        id: dto.quizId,
+      },
+      data: {
+        questions: {
+          connect: {
+            id: dto.questionId,
+          },
+        },
+      },
+    });
+  }
+
+  removeQuestion(dto: AddQuestionDto) {
+    return this.dbService.quiz.update({
+      where: {
+        id: dto.quizId,
+      },
+      data: {
+        questions: {
+          disconnect: {
+            id: dto.questionId,
+          },
+        },
+      },
     });
   }
 

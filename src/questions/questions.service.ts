@@ -39,6 +39,26 @@ export class QuestionsService {
     });
   }
 
+  findByTitle(title: string, quizId: number) {
+    return this.dbService.question.findMany({
+      where: {
+        title: {
+          startsWith: title,
+          mode: 'insensitive',
+        },
+        quizes: {
+          none: {
+            id: quizId,
+          },
+        },
+      },
+      orderBy: {
+        title: 'asc',
+      },
+      take: 5,
+    });
+  }
+
   update(
     id: number,
     { answers, correctAnswerIndex, sectionIds, title }: UpdateQuestionDto,
