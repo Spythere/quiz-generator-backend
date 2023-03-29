@@ -11,7 +11,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthDto, SignUpDto } from './dto/auth.dto';
 import { JwtResponse } from './types/token.type';
 
 @Controller('auth')
@@ -19,7 +19,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
-  signUp(@Body() authDto: AuthDto): Promise<JwtResponse> {
+  signUp(@Body() authDto: SignUpDto): Promise<JwtResponse> {
     return this.authService.signUp(authDto);
   }
 

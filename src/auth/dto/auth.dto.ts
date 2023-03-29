@@ -12,3 +12,20 @@ export class AuthDto {
   @IsString()
   password: string;
 }
+
+export class SignUpDto {
+  @ApiProperty()
+  @IsEmail()
+  @IsString()
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  secretKey: string;
+}

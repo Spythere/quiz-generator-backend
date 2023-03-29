@@ -34,6 +34,8 @@ model Question {
   author   User? @relation(fields: [authorId], references: [id])
   authorId Int?
 
+  points Int @default(0)
+
   // Question in many sections
   sections QuestionSection[]
 

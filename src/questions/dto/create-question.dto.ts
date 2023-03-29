@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -26,4 +27,9 @@ export class CreateQuestionDto {
   @IsArray()
   @IsOptional()
   sectionIds?: number[];
+
+  @ApiProperty()
+  @IsNumber()
+  @IsOptional()
+  points?: number;
 }

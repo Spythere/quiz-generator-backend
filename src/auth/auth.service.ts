@@ -1,6 +1,10 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthDto, SignUpDto } from './dto/auth.dto';
 
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -16,22 +20,35 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signUp({ email, password }: AuthDto): Promise<JwtResponse> {
+  async signUp({
+    email,
+    password,
+    secretKey,
+  }: SignUpDto): Promise<JwtResponse> {
+    const registerKey = this.configService.get<string>('REGISTER_KEY');
+
+    if (secretKey !== registerKey)
+      throw new ForbiddenException('invalid-secret-key');
+
     const hashedPwd = await this.hashData(password);
 
-    const newUser = await this.dbService.user.create({
-      data: {
-        email,
-        hashedPwd,
-      },
-    });
+    try {
+      const newUser = await this.dbService.user.create({
+        data: {
+          email,
+          hashedPwd,
+        },
+      });
 
-    const tokens = await this.getJwtTokens(newUser.id, newUser.email);
-    await this.updateRefreshTokenHash(newUser.id, tokens.refresh_token);
+      const tokens = await this.getJwtTokens(newUser.id, newUser.email);
+      await this.updateRefreshTokenHash(newUser.id, tokens.refresh_token);
 
-    return {
-      ...tokens,
-    };
+      return {
+        ...tokens,
+      };
+    } catch (error) {
+      throw new ConflictException('user-exists');
+    }
   }
 
   async signIn(res: Response, authDto: AuthDto): Promise<JwtResponse> {

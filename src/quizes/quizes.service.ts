@@ -4,6 +4,7 @@ import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { DatabaseService } from '../database/database.service';
 import { RemoveQuizesDto } from './dto/remove-quizes.dto';
 import { AddQuestionDto } from './dto/add-question-dto';
+import { AddSectionDto } from './dto/add-section-dto';
 
 @Injectable()
 export class QuizesService {
@@ -13,14 +14,21 @@ export class QuizesService {
     return this.dbService.quiz.create({
       data: {
         title: createQuizDto.title,
-        // TODO: link questions
-        // TODO: link sections
       },
     });
   }
 
   findAll() {
-    return this.dbService.quiz.findMany({});
+    return this.dbService.quiz.findMany({
+      include: {
+        _count: {
+          select: {
+            questions: true,
+            sections: true,
+          },
+        },
+      },
+    });
   }
 
   findOne(id: number) {
@@ -31,6 +39,18 @@ export class QuizesService {
           select: {
             id: true,
             title: true,
+          },
+        },
+        sections: {
+          select: {
+            id: true,
+            title: true,
+            questions: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
           },
         },
       },
@@ -70,6 +90,36 @@ export class QuizesService {
         questions: {
           disconnect: {
             id: dto.questionId,
+          },
+        },
+      },
+    });
+  }
+
+  addSection(dto: AddSectionDto) {
+    return this.dbService.quiz.update({
+      where: {
+        id: dto.quizId,
+      },
+      data: {
+        sections: {
+          connect: {
+            id: dto.sectionId,
+          },
+        },
+      },
+    });
+  }
+
+  removeSection(dto: AddSectionDto) {
+    return this.dbService.quiz.update({
+      where: {
+        id: dto.quizId,
+      },
+      data: {
+        sections: {
+          disconnect: {
+            id: dto.sectionId,
           },
         },
       },

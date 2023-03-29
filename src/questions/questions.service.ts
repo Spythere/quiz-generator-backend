@@ -43,7 +43,7 @@ export class QuestionsService {
     return this.dbService.question.findMany({
       where: {
         title: {
-          startsWith: title,
+          contains: title,
           mode: 'insensitive',
         },
         quizes: {
@@ -55,13 +55,19 @@ export class QuestionsService {
       orderBy: {
         title: 'asc',
       },
-      take: 5,
+      take: 10,
     });
   }
 
   update(
     id: number,
-    { answers, correctAnswerIndex, sectionIds, title }: UpdateQuestionDto,
+    {
+      answers,
+      correctAnswerIndex,
+      sectionIds,
+      title,
+      points,
+    }: UpdateQuestionDto,
   ) {
     return this.dbService.question.update({
       where: {
@@ -71,6 +77,7 @@ export class QuestionsService {
         answers,
         correctAnswerIndex,
         title,
+        points,
         sections: sectionIds
           ? {
               connect: [...sectionIds?.map((id) => ({ id }))],
