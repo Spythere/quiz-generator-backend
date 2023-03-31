@@ -5,6 +5,7 @@ import { DatabaseService } from '../database/database.service';
 import { RemoveQuizesDto } from './dto/remove-quizes.dto';
 import { AddQuestionDto } from './dto/add-question-dto';
 import { AddSectionDto } from './dto/add-section-dto';
+import { generatePDF } from './utils/generate-pdf';
 
 @Injectable()
 export class QuizesService {
@@ -57,6 +58,10 @@ export class QuizesService {
     });
 
     return quizDoc;
+  }
+
+  generatePDF(id: number) {
+    return generatePDF(id);
   }
 
   update(id: number, updateQuizDto: UpdateQuizDto) {
